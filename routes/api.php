@@ -7,4 +7,4 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::middleware(AuthenticateWithToken::class)->get('/users/get/{id}', [UserController::class, 'getUserProfile']);
+Route::middleware(AuthenticateWithToken::class)->get('/users/{id}', [UserController::class, 'getUserProfile']);

@@ -71,7 +71,7 @@ Make sure you have the following software installed on your machine:
       "email": "john.doe@example.com",
       "password": "password"
    }
-- Get User Profile - GET /api/user/{id}
+- Get User Profile - GET /api/users/{id}
   ```http
   Headers: 
   Authorization: Bearer your-access-token
