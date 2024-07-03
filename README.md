@@ -72,6 +72,6 @@ Make sure you have the following software installed on your machine:
       "password": "password"
    }
 - Get User Profile - GET /api/user/{id}
-  ```json
+  ```http
   Headers: 
   Authorization: Bearer your-access-token
