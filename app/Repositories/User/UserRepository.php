@@ -35,4 +35,9 @@ class UserRepository implements UserRepositoryInterface
 
         return !empty($users) ? $users[0] : null;
     }
+
+    public function searchByFirstAndLastName(string $name, string $surname): array
+    {
+        return DB::select('SELECT * FROM users WHERE name LIKE ? AND surname LIKE ? ORDER BY id', [$name . '%', $surname . '%']);
+    }
 }

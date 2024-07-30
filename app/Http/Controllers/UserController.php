@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\SearchUserRequest;
 use App\Services\User\UserService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -31,5 +32,15 @@ class UserController extends Controller
             'city' => $user->city,
             'email' => $user->email,
         ]);
+    }
+
+    public function search(SearchUserRequest $request): Response
+    {
+        $users = $this->userService->searchByFirstAndLastName(
+            $request->string('first_name'),
+            $request->string('last_name')
+        );
+
+        return response()->json($users);
     }
 }

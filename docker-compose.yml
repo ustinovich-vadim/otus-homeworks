@@ -42,16 +42,43 @@ services:
             - dbdata:/var/lib/postgresql/data
             - ./docker/postgres-config/postgresql.conf:/etc/postgresql/postgresql.conf
             - ./docker/postgres-config/pg_hba.conf:/etc/postgresql/pg_hba.conf
-        command: [ "postgres", "-c", "config_file=/etc/postgresql/postgresql.conf" ]
+            - ./docker/postgres-config/init.sql:/docker-entrypoint-initdb.d/init.sql
+        entrypoint: ["sh", "-c", "apt-get update && apt-get install -y gosu && mkdir -p /var/lib/postgresql/data/archive && chown -R postgres:postgres /var/lib/postgresql/data/archive && chmod -R 700 /var/lib/postgresql/data/archive && gosu postgres postgres -c config_file=/etc/postgresql/postgresql.conf"]
         ports:
-            - ${POSTGRESS_PORT}:5432
+            - "5433:5432"
+        networks:
+            - app_network
+
+    db_slave:
+        image: postgres:16
+        container_name: db_slave
+        environment:
+            POSTGRES_DB: laravel
+            POSTGRES_USER: replicator
+            POSTGRES_PASSWORD: pass
+            PGPASSWORD: pass
+        volumes:
+            - db_slave_data:/var/lib/postgresql/data
+            - ./docker/postgres-slave-config/postgresql.conf:/etc/postgresql/postgresql.conf
+            - ./docker/postgres-slave-config/pg_hba.conf:/etc/postgresql/pg_hba.conf
+            - ./docker/postgres-slave-config/init.sql:/docker-entrypoint-initdb.d/init.sql
+        entrypoint: ["sh", "-c", "apt-get update && apt-get install -y gosu && rm -rf /var/lib/postgresql/data/* && gosu postgres pg_basebackup -h db -p 5432 -D /var/lib/postgresql/data -U replicator -v -P --wal-method=stream && echo \"primary_conninfo = 'host=db port=5432 user=replicator password=pass'\" >> /var/lib/postgresql/data/postgresql.conf && touch /var/lib/postgresql/data/standby.signal && gosu postgres postgres -c config_file=/etc/postgresql/postgresql.conf"]
+        depends_on:
+            - db
+        ports:
+            - "5434:5432"
         networks:
             - app_network
 
 networks:
     app_network:
         driver: bridge
+        ipam:
+            config:
+                - subnet: 172.24.0.0/16
 
 volumes:
     dbdata:
+        driver: local
+    db_slave_data:
         driver: local

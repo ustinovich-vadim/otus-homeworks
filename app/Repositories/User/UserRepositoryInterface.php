@@ -10,4 +10,5 @@ interface UserRepositoryInterface
     public function create(UserRegisterDTO $userRegisterDTO, string $hashedPassword): void;
     public function findByEmail(string $email): ?stdClass;
     public function findById(int $id): ?stdClass;
+    public function searchByFirstAndLastName(string $name, string $surname): array;
 }

@@ -35,4 +35,9 @@ readonly class UserService
     {
         return Hash::check($inputPassword, $storedPassword);
     }
+
+    public function searchByFirstAndLastName(string $name, string $surname): array
+    {
+        return $this->userRepository->searchByFirstAndLastName($name, $surname);
+    }
 }
