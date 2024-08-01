@@ -62,7 +62,7 @@ services:
             - ./docker/postgres-slave-config/postgresql.conf:/etc/postgresql/postgresql.conf
             - ./docker/postgres-slave-config/pg_hba.conf:/etc/postgresql/pg_hba.conf
             - ./docker/postgres-slave-config/init.sql:/docker-entrypoint-initdb.d/init.sql
-        entrypoint: ["sh", "-c", "apt-get update && apt-get install -y gosu && rm -rf /var/lib/postgresql/data/* && gosu postgres pg_basebackup -h db -p 5432 -D /var/lib/postgresql/data -U replicator -v -P --wal-method=stream && echo \"primary_conninfo = 'host=db port=5432 user=replicator password=pass'\" >> /var/lib/postgresql/data/postgresql.conf && touch /var/lib/postgresql/data/standby.signal && gosu postgres postgres -c config_file=/etc/postgresql/postgresql.conf"]
+        entrypoint: ["sh", "-c", "apt-get update && apt-get install -y gosu && rm -rf /var/lib/postgresql/data/* && gosu postgres pg_basebackup -h db -p 5432 -D /var/lib/postgresql/data -U replicator -v -P --wal-method=stream && chmod -R 700 /var/lib/postgresql/data && echo \"primary_conninfo = 'host=db port=5432 user=replicator password=pass'\" >> /var/lib/postgresql/data/postgresql.conf && touch /var/lib/postgresql/data/standby.signal && gosu postgres postgres -c config_file=/etc/postgresql/postgresql.conf"]
         depends_on:
             - db
         ports:

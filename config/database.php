@@ -92,6 +92,12 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => 'prefer',
+            'read' => [
+                'host' => [env('DB_SLAVE_HOST', '127.0.0.1')],
+            ],
+            'write' => [
+                'host' => [env('DB_HOST', '127.0.0.1')],
+            ],
         ],
 
         'sqlsrv' => [
