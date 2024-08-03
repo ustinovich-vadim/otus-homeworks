@@ -45,9 +45,9 @@ Make sure you have the following software installed on your machine:
 6. **Install PHP dependencies**
     ```bash
     docker-compose exec app composer install
-7. **Run migrations**
+7. **Run migrations and seeders**
     ```bash
-    docker-compose exec app php artisan migrate:fresh
+    docker-compose exec app php artisan migrate:fresh --seed
 
 8. **Usage API Endpoints**
 
