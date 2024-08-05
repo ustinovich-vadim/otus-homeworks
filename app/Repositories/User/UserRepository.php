@@ -40,4 +40,9 @@ class UserRepository implements UserRepositoryInterface
     {
         return DB::select('SELECT * FROM users WHERE name LIKE ? AND surname LIKE ? ORDER BY id', [$name . '%', $surname . '%']);
     }
+
+    public function getUsersChunked(int $chunkSize, callable $callback): void
+    {
+        DB::table('users')->orderBy('id')->chunk($chunkSize, $callback);
+    }
 }

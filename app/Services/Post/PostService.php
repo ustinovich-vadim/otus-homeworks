@@ -81,4 +81,10 @@ class PostService
     {
         return $this->postRepository->getPost($postId);
     }
+
+    public function cacheFeedForUser(int $userId): void
+    {
+        $friendIds = $this->friendRepository->getFriendIds($userId);
+        $this->postRepository->regenerateCacheForUser($userId, $friendIds);
+    }
 }

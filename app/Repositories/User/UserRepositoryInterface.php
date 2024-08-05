@@ -11,4 +11,5 @@ interface UserRepositoryInterface
     public function findByEmail(string $email): ?stdClass;
     public function findById(int $id): ?stdClass;
     public function searchByFirstAndLastName(string $name, string $surname): array;
+    public function getUsersChunked(int $chunkSize, callable $callback): void;
 }

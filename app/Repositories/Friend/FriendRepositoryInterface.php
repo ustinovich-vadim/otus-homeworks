@@ -9,4 +9,6 @@ interface FriendRepositoryInterface
     public function addFriend(int $userId, int $friendId): bool;
 
     public function deleteFriend(int $userId, int $friendId): bool;
+
+    public function cacheFriendIdsForUser(int $userId): void;
 }

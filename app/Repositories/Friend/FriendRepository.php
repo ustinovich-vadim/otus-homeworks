@@ -49,6 +49,14 @@ class FriendRepository implements FriendRepositoryInterface
         });
     }
 
+    public function cacheFriendIdsForUser(int $userId): void
+    {
+        $cacheKey = $this->generateCacheKey($userId);
+        $friendIds = $this->getFriendIds($userId);
+
+        Cache::put($cacheKey, $friendIds, self::CACHE_EXPIRATION_MINUTES);
+    }
+
     private function getFiendsFormDb(int $userId): array
     {
         return DB::table('friends')
@@ -59,10 +67,7 @@ class FriendRepository implements FriendRepositoryInterface
 
     private function updateCacheForUser(int $userId): void
     {
-        $friendIds = DB::table('friends')
-            ->where('user_id', $userId)
-            ->pluck('friend_id')
-            ->toArray();
+        $friendIds = $this->getFiendsFormDb($userId);
 
         $cacheKey = $this->generateCacheKey($userId);
 

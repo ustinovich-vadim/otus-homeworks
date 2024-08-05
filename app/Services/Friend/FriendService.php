@@ -36,6 +36,11 @@ readonly class FriendService
         return $deleted;
     }
 
+    public function cacheFriendIdsForUser(int $userId): void
+    {
+        $this->friendRepository->cacheFriendIdsForUser($userId);
+    }
+
     private function updateCacheForUserAndNewFriend(int $userId, int $friendId): void
     {
         $userFriends = $this->friendRepository->getFriendIds($userId);
