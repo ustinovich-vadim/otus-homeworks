@@ -15,7 +15,7 @@ Make sure you have the following software installed on your machine:
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/ustinovich-vadim/otus-homeworks.git
+   git clone --branch feature/feed https://github.com/ustinovich-vadim/otus-homeworks.git
    cd otus-homeworks
 
 2. **Copy the .env.example file to .env**
@@ -38,6 +38,7 @@ Make sure you have the following software installed on your machine:
     DB_USERNAME=laravel
     DB_PASSWORD=secret
     POSTGRESS_PORT=5433
+    COUNT_OF_USERS=150
 
 5. **Build and start the Docker containers**
     ```bash
@@ -52,8 +53,12 @@ Make sure you have the following software installed on your machine:
 8. **Usage API Endpoints**
 
 - Register - POST /api/register
-  ```json
-  {
+  ```http
+   Headers:
+      Accept: application/json
+      Authorization: Bearer your-access-token
+   Body:
+    {
       "name": "John",
       "surname": "Doe",
       "birth_date": "1990-01-01",
@@ -63,10 +68,14 @@ Make sure you have the following software installed on your machine:
       "email": "john.doe@example.com",
       "password": "password",
       "password_confirmation": "password"
-  }
+    }
 
 - Login - POST /api/login
-   ```json
+  ```http
+   Headers:
+      Accept: application/json
+      Authorization: Bearer your-access-token
+   Body:
    {
       "email": "john.doe@example.com",
       "password": "password"
@@ -74,4 +83,63 @@ Make sure you have the following software installed on your machine:
 - Get User Profile - GET /api/users/{id}
   ```http
   Headers: 
-  Authorization: Bearer your-access-token
+    Accept: application/json
+    Authorization: Bearer your-access-token
+
+- Add Friend - POST /api/friends
+  ```http
+  Headers: 
+    Accept: application/json
+    Authorization: Bearer your-access-token
+  Body:
+  {
+      "friend_id": "123"
+  }
+
+- Delete Friend - DELETE /api/friends/{friend_id}
+  ```http
+  Headers: 
+    Accept: application/json
+    Authorization: Bearer your-access-token
+
+- Get Friends Feed - GET /api/posts/feed
+  ```http
+  Headers: 
+    Accept: application/json
+    Authorization: Bearer your-access-token
+
+- Create Post - POST /api/posts/create
+  ```http
+  Headers: 
+    Accept: application/json
+    Authorization: Bearer your-access-token
+  Body:
+  {
+    "text": "Test post"
+  }
+
+- Get Post - GET /api/posts/get/{id}
+  ```http
+  Headers: 
+    Accept: application/json
+    Authorization: Bearer your-access-token
+
+- Update Post - PUT /api/posts/update
+  ```http
+  Headers: 
+    Accept: application/json
+    Authorization: Bearer your-access-token
+  Body:
+  {
+    "id": "8409",
+    "text": "new text"
+  }
+
+- Delete Post - DELETE /api/posts/delete/{id}
+  ```http
+  Headers: 
+    Accept: application/json
+    Authorization: Bearer your-access-token
+
+
+

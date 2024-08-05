@@ -18,6 +18,8 @@ class FriendSeeder extends Seeder
             $this->seedFromFaker();
             $this->exportToCsv($filePath);
         }
+
+        $this->resetFriendIdSequence();
     }
 
     private function seedFromCsv(string $filePath): void
@@ -126,5 +128,11 @@ class FriendSeeder extends Seeder
         fclose($handle);
 
         dump('Exported friendships to CSV: ' . $filePath);
+    }
+
+    private function resetFriendIdSequence(): void
+    {
+        $maxId = DB::table('friends')->max('id');
+        DB::statement("SELECT setval(pg_get_serial_sequence('friends', 'id'), ?, false)", [$maxId + 1]);
     }
 }

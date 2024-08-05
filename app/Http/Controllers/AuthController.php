@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UserLoginRequest;
-use App\Http\Requests\UserRegisterRequest;
+use App\DTO\UserRegisterDTO;
+use App\Http\Requests\Auth\UserLoginRequest;
+use App\Http\Requests\Auth\UserRegisterRequest;
 use App\Services\Token\TokenService;
 use App\Services\User\UserService;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
-use App\DTO\UserRegisterDTO;
 
 class AuthController extends Controller
 {

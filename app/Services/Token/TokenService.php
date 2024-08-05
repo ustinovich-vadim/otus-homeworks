@@ -27,4 +27,9 @@ readonly class TokenService
 
         return !($tokenFromDB === null || ($tokenFromDB->expires_at && $tokenFromDB->expires_at < now()));
     }
+
+    public function getUserIdByToken(string $token): ?int
+    {
+        return $this->tokenRepository->getUserByToken(hash('sha256', $token));
+    }
 }

@@ -31,6 +31,8 @@ class UserSeeder extends Seeder
             $this->seedFromFaker();
             $this->exportToCsv($filePath);
         }
+
+        $this->resetUserIdSequence();
     }
 
     private function isCsvUserCountValid(string $filePath): bool
@@ -84,7 +86,7 @@ class UserSeeder extends Seeder
 
                 $batchData[] = $rowData;
 
-                if (count($batchData) === $batchData) {
+                if (count($batchData) === $batchSize) {
                     DB::table('users')->insert($batchData);
                     $batchData = [];
                     gc_collect_cycles();
@@ -169,5 +171,11 @@ class UserSeeder extends Seeder
         fclose($handle);
 
         dump('Exported users to CSV: ' . $filePath);
+    }
+
+    private function resetUserIdSequence(): void
+    {
+        $maxId = DB::table('users')->max('id');
+        DB::statement("SELECT setval(pg_get_serial_sequence('users', 'id'), ?, false)", [$maxId + 1]);
     }
 }

@@ -25,4 +25,11 @@ class TokenRepository implements TokenRepositoryInterface
 
         return !empty($tokenRecord) ? $tokenRecord[0] : null;
     }
+
+    public function getUserByToken(string $token): ?int
+    {
+        $tokenRecord = DB::select('SELECT * FROM personal_access_tokens WHERE token = ?', [$token]);
+
+        return !empty($tokenRecord) ? $tokenRecord[0]->tokenable_id : null;
+    }
 }

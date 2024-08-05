@@ -4,20 +4,44 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Faker\Factory as Faker;
 
 class PostSeeder extends Seeder
 {
+    private int $requiredUserCount;
+
+    public function __construct()
+    {
+        $this->requiredUserCount = env('COUNT_OF_USERS', 150);
+    }
+
     public function run()
     {
         $filePath = database_path('seeders/csv/posts.csv');
+        $userFilePath = database_path('seeders/csv/users.csv');
+        $friendFilePath = database_path('seeders/csv/friends.csv');
 
-        if (file_exists($filePath)) {
+        if ($this->isUserCountValid() && file_exists($filePath)) {
             $this->seedFromCsv($filePath);
         } else {
+            $this->clearCsvFiles($userFilePath, $filePath, $friendFilePath);
             $this->seedFromFaker();
             $this->exportToCsv($filePath);
         }
+
+        $this->resetPostIdSequence();
+    }
+
+    private function isUserCountValid(): bool
+    {
+        $userCount = DB::table('users')->count();
+        return $userCount === $this->requiredUserCount;
+    }
+
+    private function clearCsvFiles(string $userFilePath, string $postFilePath, string $friendFilePath): void
+    {
+        File::delete([$userFilePath, $postFilePath, $friendFilePath]);
     }
 
     private function seedFromCsv(string $filePath): void
@@ -48,7 +72,7 @@ class PostSeeder extends Seeder
 
                 $batchData[] = $rowData;
                 if (count($batchData) === $batchSize) {
-                    DB::table('posts')->insert($batchData[0]);
+                    DB::table('posts')->insert($batchData);
                     $batchData = [];
                     gc_collect_cycles();
                 }
@@ -126,5 +150,11 @@ class PostSeeder extends Seeder
         fclose($handle);
 
         dump('Exported posts to CSV: ' . $filePath);
+    }
+
+    private function resetPostIdSequence(): void
+    {
+        $maxId = DB::table('posts')->max('id');
+        DB::statement("SELECT setval(pg_get_serial_sequence('posts', 'id'), ?, false)", [$maxId + 1]);
     }
 }

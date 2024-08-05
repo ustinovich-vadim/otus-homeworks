@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\SearchUserRequest;
+use App\Http\Requests\User\SearchUserRequest;
 use App\Services\User\UserService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
