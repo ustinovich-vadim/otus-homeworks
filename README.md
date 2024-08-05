@@ -51,13 +51,14 @@ Make sure you have the following software installed on your machine:
     docker-compose exec app php artisan migrate:fresh --seed
 
 8. **Usage API Endpoints**
+ - **Register - POST /api/register**
 
-- Register - POST /api/register
-  ```http
-   Headers:
-      Accept: application/json
-      Authorization: Bearer your-access-token
-   Body:
+  **Headers:**
+  - `Accept: application/json`
+  - `Content-Type: application/json`
+
+  **Body:**
+  ```json
     {
       "name": "John",
       "surname": "Doe",
@@ -69,77 +70,83 @@ Make sure you have the following software installed on your machine:
       "password": "password",
       "password_confirmation": "password"
     }
+  ```
+    
+    
+   - **Login - POST /api/login**
 
-- Login - POST /api/login
-  ```http
-   Headers:
-      Accept: application/json
-      Authorization: Bearer your-access-token
-   Body:
-   {
-      "email": "john.doe@example.com",
-      "password": "password"
-   }
-- Get User Profile - GET /api/users/{id}
-  ```http
-  Headers: 
-    Accept: application/json
-    Authorization: Bearer your-access-token
+**Headers:**
+- `Accept: application/json`
+- `Content-Type: application/json`
 
-- Add Friend - POST /api/friends
-  ```http
-  Headers: 
-    Accept: application/json
-    Authorization: Bearer your-access-token
-  Body:
+```json
+ {
+    "email": "john.doe@example.com",
+    "password": "password"
+ }
+```
+
+- **Get User Profile - GET /api/users/{id}**
+
+  **Headers:**
+  - `Accept: application/json`
+  - `Content-Type: application/json`
+
+- **Add Friend - POST /api/friends**
+
+**Headers:**
+  - `Accept: application/json`
+  - `Content-Type: application/json`
+
+```json
   {
       "friend_id": "123"
   }
+```
 
-- Delete Friend - DELETE /api/friends/{friend_id}
-  ```http
-  Headers: 
-    Accept: application/json
-    Authorization: Bearer your-access-token
+- **Delete Friend - DELETE /api/friends/{friend_id}**
 
-- Get Friends Feed - GET /api/posts/feed
-  ```http
-  Headers: 
-    Accept: application/json
-    Authorization: Bearer your-access-token
+  **Headers:**
+  - `Accept: application/json`
+  - `Content-Type: application/json`
 
-- Create Post - POST /api/posts/create
-  ```http
-  Headers: 
-    Accept: application/json
-    Authorization: Bearer your-access-token
-  Body:
+- **Get Friends Feed - GET /api/posts/feed**
+
+  **Headers:**
+    - `Accept: application/json`
+    - `Content-Type: application/json`
+
+- **Create Post - POST /api/posts/create**
+
+  **Headers:**
+    - `Accept: application/json`
+    - `Content-Type: application/json`
+```json
   {
     "text": "Test post"
   }
+```
 
-- Get Post - GET /api/posts/get/{id}
-  ```http
-  Headers: 
-    Accept: application/json
-    Authorization: Bearer your-access-token
+- **Get Post - GET /api/posts/get/{id}**
 
-- Update Post - PUT /api/posts/update
-  ```http
-  Headers: 
-    Accept: application/json
-    Authorization: Bearer your-access-token
-  Body:
+  **Headers:**
+    - `Accept: application/json`
+    - `Content-Type: application/json`
+
+- **Update Post - PUT /api/posts/update**
+
+  **Headers:**
+    - `Accept: application/json`
+    - `Content-Type: application/json`
+```json
   {
     "id": "8409",
     "text": "new text"
   }
+```
 
-- Delete Post - DELETE /api/posts/delete/{id}
-  ```http
-  Headers: 
-    Accept: application/json
-    Authorization: Bearer your-access-token
+- **Delete Post - DELETE /api/posts/delete/{id}**
 
-
-
+  **Headers:**
+    - `Accept: application/json`
+    - `Content-Type: application/json`
