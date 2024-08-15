@@ -86,13 +86,11 @@ services:
             - app_network
         volumes:
             - masterdata:/var/lib/postgresql/data
-            - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
         restart: unless-stopped
 
     # Citus Worker Node
     citus-worker:
         image: "citusdata/citus:12.1.3"
-        container_name: citus-worker
         labels:
             - "com.citusdata.role=Worker"
         depends_on:
