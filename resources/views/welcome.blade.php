@@ -168,5 +168,15 @@
                 </div>
             </div>
         </div>
+        @vite(['resources/js/app.js'])
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                window.Echo.channel('public-channel')
+                    .listen('TestEvent', (e) => {
+                        console.log(e);
+                    });
+            });
+
+        </script>
     </body>
 </html>

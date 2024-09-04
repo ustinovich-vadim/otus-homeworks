@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\FeedController;
 use App\Http\Controllers\FriendController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
@@ -21,7 +22,7 @@ Route::middleware(AuthenticateWithToken::class)->delete('/friends/{user_id}', [F
 
 //posts
 Route::middleware(AuthenticateWithToken::class)->group(function () {
-    Route::middleware(AuthenticateWithToken::class)->get('/posts/feed', [PostController::class, 'feed']);
+    Route::middleware(AuthenticateWithToken::class)->get('/posts/feed', [FeedController::class, 'feed']);
     Route::post('/posts', [PostController::class, 'create']);
     Route::put('/posts/{post_id}', [PostController::class, 'update']);
     Route::delete('/posts/{post_id}', [PostController::class, 'delete']);

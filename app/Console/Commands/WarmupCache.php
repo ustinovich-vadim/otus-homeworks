@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Services\Feed\FriendFeedService;
 use Illuminate\Console\Command;
 use App\Services\Friend\FriendService;
-use App\Services\Post\PostService;
 use App\Repositories\User\UserRepositoryInterface;
 
 class WarmupCache extends Command
@@ -14,19 +14,19 @@ class WarmupCache extends Command
     protected $description = 'Warm up the cache for users\' friends and their news feed';
 
     protected FriendService $friendService;
-    protected PostService $postService;
     protected UserRepositoryInterface $userRepository;
+    protected FriendFeedService $friendFeedService;
 
     public function __construct(
         FriendService $friendService,
-        PostService $postService,
-        UserRepositoryInterface $userRepository
+        UserRepositoryInterface $userRepository,
+        FriendFeedService $friendFeedService
     ) {
         parent::__construct();
 
         $this->friendService = $friendService;
-        $this->postService = $postService;
         $this->userRepository = $userRepository;
+        $this->friendFeedService = $friendFeedService;
     }
 
     public function handle()
@@ -36,7 +36,7 @@ class WarmupCache extends Command
         $this->userRepository->getUsersChunked(1000, function ($users) {
             foreach ($users as $user) {
                 $this->friendService->cacheFriendIdsForUser($user->id);
-                $this->postService->cacheFeedForUser($user->id);
+                $this->friendFeedService->cacheFeedForUser($user->id);
                 gc_collect_cycles();
                 usleep(100000);
 

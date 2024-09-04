@@ -2,7 +2,10 @@
 
 namespace App\Jobs;
 
+use App\Console\Commands\RabbitMQNotificationWorkerCommand;
+use App\Enums\PostEventTypeEnum;
 use App\Services\Post\PostService;
+use App\Services\RabbitMQ\RabbitMQService;
 
 class UpdateFriendFeedsJob
 {
@@ -14,6 +17,7 @@ class UpdateFriendFeedsJob
     private int $postId;
     private array $friendIds;
     private PostService $postService;
+    private RabbitMQService $rabbitMQService;
 
     public function __construct(string $eventType, int $postId, array $friendIds)
     {
@@ -21,6 +25,7 @@ class UpdateFriendFeedsJob
         $this->postId = $postId;
         $this->friendIds = $friendIds;
         $this->postService = app(PostService::class);
+        $this->rabbitMQService = app(RabbitMQService::class);
     }
 
     public function handle(): void
@@ -46,6 +51,15 @@ class UpdateFriendFeedsJob
         foreach ($this->friendIds as $userId) {
             $this->postService->updateFriendFeedForNewPost(friendId: $userId, post: $post);
         }
+
+        $this->rabbitMQService->publishMessage(
+            RabbitMQNotificationWorkerCommand::QUEUE_NAME,
+            [
+                'post' => $post,
+                'friends' => $this->friendIds,
+                'event_type' => PostEventTypeEnum::POST_CREATED->value,
+            ]
+        );
     }
 
     private function handlePostUpdated(): void
@@ -59,6 +73,15 @@ class UpdateFriendFeedsJob
         foreach ($this->friendIds as $friendId) {
             $this->postService->updateFriendFeedForUpdatedPost(friendId: $friendId, post: $post);
         }
+
+        $this->rabbitMQService->publishMessage(
+            RabbitMQNotificationWorkerCommand::QUEUE_NAME,
+            [
+                'post' => $post,
+                'friends' => $this->friendIds,
+                'event_type' => PostEventTypeEnum::POST_UPDATED->value,
+            ]
+        );
     }
 
     private function handlePostDeleted(): void
@@ -66,5 +89,14 @@ class UpdateFriendFeedsJob
         foreach ($this->friendIds as $friendId) {
             $this->postService->updateCacheForDeletedPost($friendId);
         }
+
+        $this->rabbitMQService->publishMessage(
+            RabbitMQNotificationWorkerCommand::QUEUE_NAME,
+            [
+                'post_id' => $this->postId,
+                'friends' => $this->friendIds,
+                'event_type' => PostEventTypeEnum::POST_DELETED->value,
+            ]
+        );
     }
 }

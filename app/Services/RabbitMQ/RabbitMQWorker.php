@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Services\RabbitMQ;
 
-use App\Jobs\UpdateFriendFeedsJob;
 use PhpAmqpLib\Channel\AMQPChannel;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 
-class RabbitMQWorker
+abstract class RabbitMQWorker
 {
     protected ?AMQPStreamConnection $connection = null;
     protected ?AMQPChannel $channel = null;
@@ -57,18 +56,7 @@ class RabbitMQWorker
         }
     }
 
-    private function handleMessage(AMQPMessage $msg): void
-    {
-        $data = json_decode($msg->body, true);
-
-        $job = unserialize($data['job']);
-
-        if ($job instanceof UpdateFriendFeedsJob) {
-            $job->handle();
-        }
-
-        $this->channel->basic_ack($msg->get('delivery_tag'));
-    }
+    abstract protected function handleMessage(AMQPMessage $msg): void;
 
     public function __destruct()
     {

@@ -18,7 +18,8 @@ services:
             - redis
             - db
             - rabbitmq
-            - rabbitmq_worker
+            - friend_feed_worker
+            - notification_worker
         environment:
             - QUEUE_CONNECTION=redis
         command: >
@@ -107,7 +108,6 @@ services:
         build:
             context: .
             dockerfile: ./docker/Dockerfile
-        container_name: websocket
         dns:
             - 8.8.8.8
             - 8.8.4.4
@@ -128,11 +128,10 @@ services:
             "
         restart: unless-stopped
 
-    rabbitmq_worker:
+    friend_feed_worker:
         build:
             context: .
             dockerfile: ./docker/Dockerfile
-        container_name: rabbitmq_worker
         dns:
             - 8.8.8.8
             - 8.8.4.4
@@ -141,12 +140,63 @@ services:
             - .:/var/www
         networks:
             - app_network
+        environment:
+            - QUEUE_CONNECTION=sync
         depends_on:
             - db
             - rabbitmq
+            - redis
         command: >
             sh -c "
-            php artisan rabbitmq:work
+            php artisan rabbitmq:friend-feed-work
+            "
+        restart: unless-stopped
+
+    friend_feed_worker_for_celebrity:
+        build:
+            context: .
+            dockerfile: ./docker/Dockerfile
+        dns:
+            - 8.8.8.8
+            - 8.8.4.4
+        working_dir: /var/www
+        volumes:
+            - .:/var/www
+        networks:
+            - app_network
+        environment:
+            - QUEUE_CONNECTION=sync
+        depends_on:
+            - db
+            - rabbitmq
+            - redis
+        command: >
+            sh -c "
+            php artisan rabbitmq:friend-feed-for-celebrity-work
+            "
+        restart: unless-stopped
+
+    notification_worker:
+        build:
+            context: .
+            dockerfile: ./docker/Dockerfile
+        dns:
+            - 8.8.8.8
+            - 8.8.4.4
+        working_dir: /var/www
+        volumes:
+            - .:/var/www
+        networks:
+            - app_network
+        environment:
+            - QUEUE_CONNECTION=sync
+        depends_on:
+            - db
+            - rabbitmq
+            - redis
+        command: >
+            sh -c "
+            php artisan rabbitmq:notification-work
             "
         restart: unless-stopped
 
