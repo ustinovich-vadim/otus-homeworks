@@ -2,10 +2,12 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use App\Services\Auth\AuthenticatedUser;
 use App\Services\Token\TokenService;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 readonly class AuthenticateWithToken
 {
@@ -22,7 +24,9 @@ readonly class AuthenticateWithToken
             return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
-        AuthenticatedUser::setId($this->tokenService->getUserIdByToken($token));
+        $user = User::find($this->tokenService->getUserIdByToken($token));
+        Auth::login($user);
+        AuthenticatedUser::setId($user->id);
 
         return $next($request);
     }

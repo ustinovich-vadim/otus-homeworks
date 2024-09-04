@@ -4,7 +4,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Default Queue Connection Name
+    | Default RabbitMQ Connection Name
     |--------------------------------------------------------------------------
     |
     | Laravel's queue supports a variety of backends via a single, unified
@@ -17,7 +17,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Queue Connections
+    | RabbitMQ Connections
     |--------------------------------------------------------------------------
     |
     | Here you may configure the connection options for every queue backend
@@ -71,7 +71,29 @@ return [
             'block_for' => null,
             'after_commit' => false,
         ],
+        'rabbitmq' => [
+            'driver' => 'rabbitmq',
+            'host' => env('RABBITMQ_HOST', '127.0.0.1'),
+            'port' => env('RABBITMQ_PORT', 5672),
+            'user' => env('RABBITMQ_USER', 'guest'),
+            'password' => env('RABBITMQ_PASSWORD', 'guest'),
+            'vhost' => env('RABBITMQ_VHOST', '/'),
 
+            'options' => [
+                'ssl_options' => [
+                    'cafile' => env('RABBITMQ_SSL_CAFILE', null),
+                    'local_cert' => env('RABBITMQ_SSL_LOCALCERT', null),
+                    'local_key' => env('RABBITMQ_SSL_LOCALKEY', null),
+                    'verify_peer' => env('RABBITMQ_SSL_VERIFY_PEER', true),
+                    'passphrase' => env('RABBITMQ_SSL_PASSPHRASE', null),
+                ],
+            ],
+
+            'queue' => env('RABBITMQ_QUEUE', 'default'),
+            'exchange' => env('RABBITMQ_EXCHANGE', null),
+            'exchange_type' => env('RABBITMQ_EXCHANGE_TYPE', 'direct'),
+            'exchange_routing_key' => env('RABBITMQ_ROUTING_KEY', null),
+        ],
     ],
 
     /*
@@ -92,7 +114,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Failed Queue Jobs
+    | Failed RabbitMQ Jobs
     |--------------------------------------------------------------------------
     |
     | These options configure the behavior of failed queue job logging so you

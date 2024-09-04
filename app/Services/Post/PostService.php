@@ -5,12 +5,14 @@ namespace App\Services\Post;
 use App\Jobs\UpdateFriendFeedsJob;
 use App\Repositories\Friend\FriendRepositoryInterface;
 use App\Repositories\Post\PostRepositoryInterface;
+use App\Services\RabbitMQ\RabbitMQService;
 
-class PostService
+readonly class PostService
 {
     public function __construct(
-        private PostRepositoryInterface $postRepository,
-        private FriendRepositoryInterface $friendRepository
+        private PostRepositoryInterface   $postRepository,
+        private FriendRepositoryInterface $friendRepository,
+        private RabbitMQService $rabbitMQService
     ) {
         //
     }
@@ -20,7 +22,7 @@ class PostService
         $postId = $this->postRepository->createPost($userId, $text);
         $friendIds = $this->friendRepository->getFriendIds($userId);
 
-        UpdateFriendFeedsJob::dispatch(UpdateFriendFeedsJob::EVENT_CREATED, $postId, $friendIds);
+        $this->dispatchUpdateFriendFeedsJobToQueue(UpdateFriendFeedsJob::EVENT_CREATED, $postId, $friendIds);
 
         return $postId;
     }
@@ -31,7 +33,7 @@ class PostService
         $post = $this->postRepository->getPost($postId);
         $friendIds = $this->friendRepository->getFriendIds($post['user_id']);
 
-        UpdateFriendFeedsJob::dispatch(UpdateFriendFeedsJob::EVENT_UPDATED, $postId, $friendIds);
+        $this->dispatchUpdateFriendFeedsJobToQueue(UpdateFriendFeedsJob::EVENT_UPDATED, $postId, $friendIds);
     }
 
     public function deletePost(int $postId): void
@@ -40,7 +42,7 @@ class PostService
         $this->postRepository->deletePost($postId);
         $friendIds = $this->friendRepository->getFriendIds($post['user_id']);
 
-        UpdateFriendFeedsJob::dispatch(UpdateFriendFeedsJob::EVENT_DELETED, $postId, $friendIds);
+        $this->dispatchUpdateFriendFeedsJobToQueue(UpdateFriendFeedsJob::EVENT_DELETED, $postId, $friendIds);
     }
 
     public function getPost(int $postId): array
@@ -86,5 +88,12 @@ class PostService
     {
         $friendIds = $this->friendRepository->getFriendIds($userId);
         $this->postRepository->regenerateCacheForUser($userId, $friendIds);
+    }
+
+    private function dispatchUpdateFriendFeedsJobToQueue(string $eventType, int $postId, array $friendIds): void
+    {
+        $job = new UpdateFriendFeedsJob($eventType, $postId, $friendIds);
+        $serializedJob = serialize($job);
+        $this->rabbitMQService->publishMessage('update_friend_feeds_queue', ['job' => $serializedJob]);
     }
 }

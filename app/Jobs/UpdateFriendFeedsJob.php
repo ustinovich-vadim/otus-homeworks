@@ -3,16 +3,9 @@
 namespace App\Jobs;
 
 use App\Services\Post\PostService;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 
-class UpdateFriendFeedsJob implements ShouldQueue
+class UpdateFriendFeedsJob
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
     public const EVENT_CREATED = 'created';
     public const EVENT_UPDATED = 'updated';
     public const EVENT_DELETED = 'deleted';
@@ -20,54 +13,58 @@ class UpdateFriendFeedsJob implements ShouldQueue
     private string $eventType;
     private int $postId;
     private array $friendIds;
+    private PostService $postService;
 
     public function __construct(string $eventType, int $postId, array $friendIds)
     {
         $this->eventType = $eventType;
         $this->postId = $postId;
         $this->friendIds = $friendIds;
+        $this->postService = app(PostService::class);
     }
 
-    public function handle(PostService $postService): void
+    public function handle(): void
     {
         match ($this->eventType) {
-            self::EVENT_CREATED => $this->handlePostCreated($postService),
-            self::EVENT_UPDATED => $this->handlePostUpdated($postService),
-            self::EVENT_DELETED => $this->handlePostDeleted($postService),
+            self::EVENT_CREATED => $this->handlePostCreated(),
+            self::EVENT_UPDATED => $this->handlePostUpdated(),
+            self::EVENT_DELETED => $this->handlePostDeleted(),
             default => null,
         };
+
+        dump('Job handled successful');
     }
 
-    private function handlePostCreated(PostService $postService): void
+    private function handlePostCreated(): void
     {
-        $post = $postService->getPostById($this->postId);
+        $post = $this->postService->getPostById($this->postId);
 
         if (!$post) {
             return;
         }
 
         foreach ($this->friendIds as $userId) {
-            $postService->updateFriendFeedForNewPost(friendId: $userId, post: $post);
+            $this->postService->updateFriendFeedForNewPost(friendId: $userId, post: $post);
         }
     }
 
-    private function handlePostUpdated(PostService $postService): void
+    private function handlePostUpdated(): void
     {
-        $post = $postService->getPostById($this->postId);
+        $post = $this->postService->getPostById($this->postId);
 
         if (!$post) {
             return;
         }
 
         foreach ($this->friendIds as $friendId) {
-            $postService->updateFriendFeedForUpdatedPost(friendId: $friendId, post: $post);
+            $this->postService->updateFriendFeedForUpdatedPost(friendId: $friendId, post: $post);
         }
     }
 
-    private function handlePostDeleted(PostService $postService): void
+    private function handlePostDeleted(): void
     {
         foreach ($this->friendIds as $friendId) {
-            $postService->updateCacheForDeletedPost($friendId);
+            $this->postService->updateCacheForDeletedPost($friendId);
         }
     }
 }
