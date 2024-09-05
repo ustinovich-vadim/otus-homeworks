@@ -34,8 +34,8 @@ Make sure you have the following software installed on your machine:
     DB_CONNECTION=pgsql
     DB_HOST=db
     DB_PORT=5432
-    DB_DATABASE=laravel
-    DB_USERNAME=laravel
+    DB_DATABASE=postgres
+    DB_USERNAME=postgres
     DB_PASSWORD=secret
     POSTGRESS_PORT=5433
     COUNT_OF_USERS=150
@@ -78,6 +78,7 @@ Make sure you have the following software installed on your machine:
 **Headers:**
 - `Accept: application/json`
 - `Content-Type: application/json`
+- `Authorization': 'Bearer token`
 
 ```json
  {
@@ -91,12 +92,14 @@ Make sure you have the following software installed on your machine:
   **Headers:**
   - `Accept: application/json`
   - `Content-Type: application/json`
+  - `Authorization': 'Bearer token`
 
 - **Add Friend - POST /api/friends**
 
 **Headers:**
   - `Accept: application/json`
   - `Content-Type: application/json`
+  - `Authorization': 'Bearer token`
 
 ```json
   {
@@ -109,18 +112,21 @@ Make sure you have the following software installed on your machine:
   **Headers:**
   - `Accept: application/json`
   - `Content-Type: application/json`
+  - `Authorization': 'Bearer token`
 
 - **Get Friends Feed - GET /api/posts/feed**
 
   **Headers:**
     - `Accept: application/json`
     - `Content-Type: application/json`
+    - `Authorization': 'Bearer token`
 
 - **Create Post - POST /api/posts/create**
 
   **Headers:**
     - `Accept: application/json`
     - `Content-Type: application/json`
+    - `Authorization': 'Bearer token`
 ```json
   {
     "text": "Test post"
@@ -132,12 +138,14 @@ Make sure you have the following software installed on your machine:
   **Headers:**
     - `Accept: application/json`
     - `Content-Type: application/json`
+    - `Authorization': 'Bearer token`
 
 - **Update Post - PUT /api/posts/update**
 
   **Headers:**
     - `Accept: application/json`
     - `Content-Type: application/json`
+    - `Authorization': 'Bearer token`
 ```json
   {
     "id": "8409",
@@ -150,3 +158,24 @@ Make sure you have the following software installed on your machine:
   **Headers:**
     - `Accept: application/json`
     - `Content-Type: application/json`
+    - `Authorization': 'Bearer token`
+
+
+- **Send Message to user - POST /api/messages/{user_id}/send**
+
+  **Headers:**
+    - `Accept: application/json`
+    - `Content-Type: application/json`
+    - `Authorization': 'Bearer token`
+```json
+  {
+    "text": "Text of message"
+  }
+```
+
+- **Get list of messages from dialog with user - GET /api/messages/{user_id}/list**
+
+  **Headers:**
+    - `Accept: application/json`
+    - `Content-Type: application/json`
+    - `Authorization': 'Bearer token`
