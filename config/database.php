@@ -167,4 +167,5 @@ return [
 
     ],
 
+    'dialog_module_db' => env('DB_FOR_DIALOG_MODULE', 'postgres'),
 ];

@@ -17,9 +17,7 @@ services:
         depends_on:
             - redis
             - db
-            - rabbitmq
-            - friend_feed_worker
-            - notification_worker
+            - tarantool
         environment:
             - QUEUE_CONNECTION=redis
         command: >
@@ -104,118 +102,19 @@ services:
             "
         restart: unless-stopped
 
-    websocket:
-        build:
-            context: .
-            dockerfile: ./docker/Dockerfile
-        dns:
-            - 8.8.8.8
-            - 8.8.4.4
-        working_dir: /var/www
-        volumes:
-            - .:/var/www
-        networks:
-            - app_network
-        depends_on:
-            - redis
-            - rabbitmq
-            - db
+    tarantool:
+        image: tarantool/tarantool:2.10
+        container_name: tarantool
         ports:
-            - "8080:8080"
-        command: >
-            sh -c "
-            php artisan reverb:start
-            "
-        restart: unless-stopped
-
-    friend_feed_worker:
-        build:
-            context: .
-            dockerfile: ./docker/Dockerfile
-        dns:
-            - 8.8.8.8
-            - 8.8.4.4
-        working_dir: /var/www
-        volumes:
-            - .:/var/www
-        networks:
-            - app_network
+            - "3301:3301"
         environment:
-            - QUEUE_CONNECTION=sync
-        depends_on:
-            - db
-            - rabbitmq
-            - redis
-        command: >
-            sh -c "
-            php artisan rabbitmq:friend-feed-work
-            "
-        restart: unless-stopped
-
-    friend_feed_worker_for_celebrity:
-        build:
-            context: .
-            dockerfile: ./docker/Dockerfile
-        dns:
-            - 8.8.8.8
-            - 8.8.4.4
-        working_dir: /var/www
+            TARANTOOL_MEMORY_LIMIT: 8G
         volumes:
-            - .:/var/www
-        networks:
-            - app_network
-        environment:
-            - QUEUE_CONNECTION=sync
-        depends_on:
-            - db
-            - rabbitmq
-            - redis
+            - ./docker/tarantool/config:/opt/tarantool/config
         command: >
-            sh -c "
-            php artisan rabbitmq:friend-feed-for-celebrity-work
-            "
-        restart: unless-stopped
-
-    notification_worker:
-        build:
-            context: .
-            dockerfile: ./docker/Dockerfile
-        dns:
-            - 8.8.8.8
-            - 8.8.4.4
-        working_dir: /var/www
-        volumes:
-            - .:/var/www
+            tarantool /opt/tarantool/config/init.lua
         networks:
             - app_network
-        environment:
-            - QUEUE_CONNECTION=sync
-        depends_on:
-            - db
-            - rabbitmq
-            - redis
-        command: >
-            sh -c "
-            php artisan rabbitmq:notification-work
-            "
-        restart: unless-stopped
-
-    rabbitmq:
-        image: rabbitmq:3-management-alpine
-        dns:
-            - 8.8.8.8
-            - 8.8.4.4
-        container_name: rabbitmq
-        ports:
-            - "5672:5672"
-            - "15672:15672"
-        networks:
-            - app_network
-        healthcheck:
-            test: [ "CMD-SHELL", "rabbitmq-diagnostics -q ping" ]
-            interval: 10s
-            timeout: 5s
-            retries: 5
         restart: unless-stopped
 
 networks:

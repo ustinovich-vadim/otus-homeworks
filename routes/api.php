@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\FriendController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\AuthenticateWithToken;
@@ -28,3 +29,11 @@ Route::middleware(AuthenticateWithToken::class)->group(function () {
     Route::delete('/posts/{post_id}', [PostController::class, 'delete']);
     Route::get('/posts/{post_id}', [PostController::class, 'get']);
 });
+
+//messages
+Route::middleware(AuthenticateWithToken::class)->group(function () {
+    Route::post('/messages/{user_id}/send', [MessageController::class, 'create']);
+    Route::get('/messages/{user_id}/list', [MessageController::class, 'index']);
+});
+
+
