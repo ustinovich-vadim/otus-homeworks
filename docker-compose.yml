@@ -13,11 +13,10 @@ services:
         volumes:
             - .:/var/www
         networks:
-            - app_network
+            - otus_network
         depends_on:
             - redis
             - db
-            - tarantool
         environment:
             - QUEUE_CONNECTION=redis
         command: >
@@ -42,7 +41,7 @@ services:
         depends_on:
             - app
         networks:
-            - app_network
+            - otus_network
         restart: unless-stopped
 
     db:
@@ -63,7 +62,7 @@ services:
         ports:
             - "5433:5432"
         networks:
-            - app_network
+            - otus_network
         restart: unless-stopped
 
     redis:
@@ -75,7 +74,7 @@ services:
         ports:
             - "6380:6379"
         networks:
-            - app_network
+            - otus_network
         restart: unless-stopped
 
     worker:
@@ -90,7 +89,7 @@ services:
         volumes:
             - .:/var/www
         networks:
-            - app_network
+            - otus_network
         depends_on:
             - redis
             - db
@@ -102,24 +101,9 @@ services:
             "
         restart: unless-stopped
 
-    tarantool:
-        image: tarantool/tarantool:2.10
-        container_name: tarantool
-        ports:
-            - "3301:3301"
-        environment:
-            TARANTOOL_MEMORY_LIMIT: 8G
-        volumes:
-            - ./docker/tarantool/config:/opt/tarantool/config
-        command: >
-            tarantool /opt/tarantool/config/init.lua
-        networks:
-            - app_network
-        restart: unless-stopped
-
 networks:
-    app_network:
-        driver: bridge
+    otus_network:
+        external: true
 
 volumes:
     dbdata:

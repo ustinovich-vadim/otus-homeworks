@@ -2,33 +2,47 @@
 
 namespace App\Services\Message;
 
-use App\Repositories\Message\MessageRepositoryInterface;
-use App\Services\Dialog\DialogService;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Http;
 
-readonly class MessageService
+class MessageService
 {
-    public function __construct(
-        private MessageRepositoryInterface $messageRepository,
-        private DialogService $dialogService
-    ) {
-        //
+    protected string $baseUrlForMicroservice;
+
+    public function __construct()
+    {
+        $this->baseUrlForMicroservice = config('microservices.dialog_microservice.base_uri');
     }
 
-    public function getMessages(int $authUserId, int $dialogPartnerId, int $offset, int $limit): array
+    /**
+     * @throws ConnectionException
+     */
+    public function getMessages($userId, $authHeaderValue, $requestIdHeaderValue)
     {
+        $url = $this->baseUrlForMicroservice . "/messages/{$userId}/list";
+        $headers = $this->prepareHeaders($authHeaderValue, $requestIdHeaderValue);
 
-        $dialogWithUser = $this->dialogService->getDialogIdWithUser($authUserId, $dialogPartnerId);
-
-        return $dialogWithUser ? $this->messageRepository->getMessagesFromDialog($dialogWithUser, $offset, $limit) : [];
+        return Http::withHeaders($headers)->get($url)->json();
     }
 
-    public function createMessage($authUserId, $dialogPartnerId, $text): void
+    /**
+     * @throws ConnectionException
+     */
+    public function createMessage($userId, $data, $authHeaderValue, $requestIdHeaderValue)
     {
-        DB::transaction(function () use ($authUserId, $dialogPartnerId, $text) {
-            $dialogWithUser = $this->dialogService->getOrCreateDialogIdWithUser($authUserId, $dialogPartnerId);
+        $url = $this->baseUrlForMicroservice . "/messages/{$userId}/send";
+        $headers = $this->prepareHeaders($authHeaderValue, $requestIdHeaderValue);
 
-            $this->messageRepository->createMessage($authUserId, $dialogWithUser['id'], $text);
-        });
+        return Http::withHeaders($headers)->post($url, $data)->json();
+    }
+
+    private function prepareHeaders(string $authHeaderValue, string $requestIdHeaderValue): array
+    {
+        return [
+            'Authorization' => $authHeaderValue,
+            'x-request-id' => $requestIdHeaderValue,
+            'Content-Type' => 'application/json',
+        ];
     }
 }
+

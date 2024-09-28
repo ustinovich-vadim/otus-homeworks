@@ -15,7 +15,7 @@ Make sure you have the following software installed on your machine:
 1. **Clone the repository**
 
    ```bash
-   git clone --branch feature/feed https://github.com/ustinovich-vadim/otus-homeworks.git
+   git clone --branch feature/microservice-for-dialogs https://github.com/ustinovich-vadim/otus-homeworks.git
    cd otus-homeworks
 
 2. **Copy the .env.example file to .env**
@@ -39,8 +39,14 @@ Make sure you have the following software installed on your machine:
     DB_PASSWORD=secret
     POSTGRESS_PORT=5433
     COUNT_OF_USERS=150
+    JWT_SECRET=secret_for_token
+    DIALOG_MICROSERVICE_URL=http://svc-webserver/api
 
-5. **Build and start the Docker containers**
+5. **Create the shared network**
+    ```bash
+   docker network create otus_network 
+    ```
+6. **Build and start the Docker containers**
     ```bash
     docker-compose up -d
 6. **Install PHP dependencies**
@@ -50,7 +56,16 @@ Make sure you have the following software installed on your machine:
     ```bash
     docker-compose exec app php artisan migrate:fresh --seed
 
-8. **Usage API Endpoints**
+8. **Usage of Dialog Microservice**
+
+   To use the Dialog Microservice, clone the repository and navigate to its directory:
+    ```bash
+    git clone git@github.com:ustinovich-vadim/otus-microservice-for-dialogs.git
+    cd dialog-microservice
+   ```
+    For setup instructions, refer to the README.md file in the repository to properly configure and run the service.
+
+9. **Usage API Endpoints**
  - **Register - POST /api/register**
 
   **Headers:**

@@ -3,7 +3,7 @@
 namespace App\Services\Token;
 
 use App\Repositories\Token\TokenRepositoryInterface;
-use Illuminate\Support\Str;
+use Firebase\JWT\JWT;
 
 readonly class TokenService
 {
@@ -15,7 +15,14 @@ readonly class TokenService
 
     public function createToken(int $userId): string
     {
-        $token = Str::random(64);
+        $payload = [
+            'iss' => "monolith",
+            'sub' => $userId,
+            'iat' => time(),
+            'exp' => time() + 3600
+        ];
+
+        $token = JWT::encode($payload, env('JWT_SECRET'), 'HS256', 'unique_key_id');
         $this->tokenRepository->createToken($userId, $token);
 
         return $token;

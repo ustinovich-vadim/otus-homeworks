@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Message\CreateMessageRequest;
 use App\Http\Requests\Message\GetMessagesRequest;
-use App\Services\Auth\AuthenticatedUser;
 use App\Services\Message\MessageService;
 use Exception;
+use Illuminate\Http\Client\ConnectionException;
 use Symfony\Component\HttpFoundation\Response;
 
 class MessageController extends Controller
@@ -16,45 +16,31 @@ class MessageController extends Controller
         //
     }
 
+    /**
+     * @throws ConnectionException
+     */
     public function index(GetMessagesRequest $request): Response
     {
-        $authUserId = AuthenticatedUser::getId();
-        $dialogPartnerId = $request->route('user_id');
-        $offset = $request->integer('offset', 0);
-        $limit = $request->integer('limit', 100);
-
-        $start = microtime(true);
-        $messages = $this->messageService->getMessages(
-            authUserId: $authUserId,
-            dialogPartnerId: $dialogPartnerId,
-            offset: $offset,
-            limit: $limit
+        $responseData =  $this->messageService->getMessages(
+            userId: $request->route('user_id'),
+            authHeaderValue: $request->header('Authorization'),
+            requestIdHeaderValue: $request->header('x-request-id')
         );
-        $finish = microtime(true);
-        $timeResult = ($finish - $start)*1000;
-        sleep($timeResult);
 
-        return response()->json($messages, Response::HTTP_OK);
+        return response()->json($responseData);
     }
 
     public function create(CreateMessageRequest $request): Response
     {
-        $authUserId = AuthenticatedUser::getId();
-        $dialogPartnerId = $request->route('user_id');
-        $text = $request->string('text');
-
         try {
-            $start = microtime(true);
-             $this->messageService->createMessage(
-                authUserId: $authUserId,
-                dialogPartnerId: $dialogPartnerId,
-                text: $text
+            $responseData =  $this->messageService->createMessage(
+                userId: $request->route('user_id'),
+                data: $request->all(),
+                authHeaderValue: $request->header('Authorization'),
+                requestIdHeaderValue: $request->header('x-request-id')
             );
-            $finish = microtime(true);
-            $timeResult = ($finish - $start)*1000;
-            sleep($timeResult);
 
-            return response()->json('Message created successfully', Response::HTTP_CREATED);
+            return response()->json($responseData);
         } catch (Exception $e) {
             return response()->json('Failed to create message', Response::HTTP_INTERNAL_SERVER_ERROR);
         }
