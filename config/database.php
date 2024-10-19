@@ -93,7 +93,9 @@ return [
             'search_path' => 'public',
             'sslmode' => 'prefer',
             'read' => [
-                'host' => [env('DB_SLAVE_HOST', '127.0.0.1')],
+                'host' => [
+                    env('DB_HAPROXY_READ_HOST', 'haproxy')
+                ],
             ],
             'write' => [
                 'host' => [env('DB_HOST', '127.0.0.1')],
